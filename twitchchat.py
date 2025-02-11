@@ -10,8 +10,8 @@ PORT = 6667
 TOKEN = os.getenv("TWITCH_OAUTH_TOKEN")
 CHANNEL = "aglamorousfortuneteller"
 
-ARDUINO_PORT = "COM8"
-BAUD_RATE = 9600 
+ARDUINO_PORT = "COM6"
+BAUD_RATE = 115200 
 arduino = serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout=1) 
 
 def openSocket():
@@ -82,6 +82,10 @@ def listenAndRespond(s):
                 elif "led3 off" in message:
                     sendMessage(s, f"@{user} Turning the LED №3 off!") 
                     controlArduino("LED3_OFF") 
+
+                elif "Rainbow" in message:
+                    sendMessage(s, f"@{user} Turning the rainbow!") 
+                    controlArduino("RAINBOW ON") 
 
 if __name__ == "__main__":
     s = openSocket()
