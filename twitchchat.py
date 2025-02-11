@@ -2,6 +2,7 @@ import socket
 from dotenv import load_dotenv
 import os
 import serial
+import re
 
 load_dotenv()
 
@@ -62,30 +63,49 @@ def listenAndRespond(s):
                     sendMessage(s, f"@{user}, PONG")
                 elif "💖" in message:
                     sendMessage(s, f"@{user} Hi! 💖💖💖")
-                elif "led1 on" in message: 
-                    sendMessage(s, f"@{user} Turning the LED №1 on!")
-                    controlArduino("LED1_ON") 
-                elif "led1 off" in message:
-                    sendMessage(s, f"@{user} Turning the LED №1 off!") 
-                    controlArduino("LED1_OFF") 
-                
-                elif "led2 on" in message: 
-                    sendMessage(s, f"@{user} Turning the LED №2 on!")
-                    controlArduino("LED2_ON") 
-                elif "led2 off" in message:
-                    sendMessage(s, f"@{user} Turning the LED №2 off!") 
-                    controlArduino("LED2_OFF") 
-
-                elif "led3 on" in message: 
-                    sendMessage(s, f"@{user} Turning the LED №3 on!")
-                    controlArduino("LED3_ON") 
-                elif "led3 off" in message:
-                    sendMessage(s, f"@{user} Turning the LED №3 off!") 
-                    controlArduino("LED3_OFF") 
-
-                elif "Rainbow" in message:
-                    sendMessage(s, f"@{user} Turning the rainbow!") 
+                elif "rainbow on" in message: 
+                    sendMessage(s, f"@{user} Turning the Rainbow ON")
                     controlArduino("RAINBOW ON") 
+                elif "rainbow off" in message:
+                    sendMessage(s, f"@{user} Turning the Rainbow off!") 
+                    controlArduino("RAINBOW OFF") 
+                elif "all leds on" in message: 
+                    sendMessage(s, f"@{user} Turning all the LED on!")
+                    controlArduino("ALL ON") 
+                elif "all leds off" in message:
+                    sendMessage(s, f"@{user} Turning all the LED off!") 
+                    controlArduino("ALL OFF") 
+                
+                
+                match_color = re.match(r"led(\d+) (r|g|b|red|green|blue)$", message)
+                if match_color:
+                    led_num = match_color.group(1)
+                    color = match_color.group(2)
+
+                    color_map = {
+                        "r": "R", "g": "G", "b": "B",
+                        "red": "R", "green": "G", "blue": "B"
+                    }
+                    mapped_color = color_map[color]
+
+                    sendMessage(s, f"@{user} Setting LED {led_num} to {mapped_color}")
+                    controlArduino(f" {led_num} {mapped_color}")
+
+            
+                match_rgb = re.match(r"led(\d+) (\d{1,3}) (\d{1,3}) (\d{1,3})$", message)
+                if match_rgb:
+                    led_num = match_rgb.group(1)
+                    r, g, b = int(match_rgb.group(2)), int(match_rgb.group(3)), int(match_rgb.group(4))
+
+                    if 0 <= r <= 255 and 0 <= g <= 255 and 0 <= b <= 255:
+                        sendMessage(s, f"@{user} Setting LED {led_num} to RGB({r}, {g}, {b})")
+                        controlArduino(f" {led_num} {r} {g} {b}")
+                    else:
+                        sendMessage(s, f"@{user} Invalid RGB values! Use 0-255.")
+
+
+
+
 
 if __name__ == "__main__":
     s = openSocket()
