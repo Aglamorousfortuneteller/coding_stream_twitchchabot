@@ -10,5 +10,5 @@ This bot was live coded on stream at [Twitch](https://www.twitch.tv/aglamorousfo
 
 This bot was live coded on stream at [Twitch](https://www.twitch.tv/aglamorousfortuneteller) on February 11, 2025.
 
-📺 Watch the session 2 here: [Twitch VOD](.....)
+📺 Watch the session 2 here: [Twitch VOD](https://www.twitch.tv/videos/2379434974)
 
