@@ -11,7 +11,7 @@ PORT = 6667
 TOKEN = os.getenv("TWITCH_OAUTH_TOKEN")
 CHANNEL = "aglamorousfortuneteller"
 
-ARDUINO_PORT = "COM6"
+ARDUINO_PORT = "COM9"
 BAUD_RATE = 115200 
 arduino = serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout=1) 
 
@@ -58,23 +58,37 @@ def listenAndRespond(s):
             user = getUser(line)
             message = getMessage(line)
             if user and message:
-                message = message.strip().lower()
+                message = message.strip().casefold()
                 if "ping" in message:
                     sendMessage(s, f"@{user}, PONG")
                 elif "💖" in message:
                     sendMessage(s, f"@{user} Hi! 💖💖💖")
-                elif "rainbow on" in message: 
-                    sendMessage(s, f"@{user} Turning the Rainbow ON")
-                    controlArduino("RAINBOW ON") 
+
+                elif "rainbow on" in message:
+                    if "enter" in message:
+                        a=[]
+                    else:
+                        sendMessage(s, f"@{user} Turning the Rainbow ON")
+                        controlArduino("RAINBOW ON") 
+
                 elif "rainbow off" in message:
-                    sendMessage(s, f"@{user} Turning the Rainbow off!") 
-                    controlArduino("RAINBOW OFF") 
-                elif "all leds on" in message: 
-                    sendMessage(s, f"@{user} Turning all the LED on!")
-                    controlArduino("ALL ON") 
-                elif "all leds off" in message:
-                    sendMessage(s, f"@{user} Turning all the LED off!") 
-                    controlArduino("ALL OFF") 
+                    if "enter" in message:
+                        a=[]
+                    else:
+                        sendMessage(s, f"@{user} Turning the Rainbow off!") 
+                        controlArduino("RAINBOW OFF") 
+                elif "all on" in message:
+                    if "enter" in message:
+                        a=[]
+                    else:
+                        sendMessage(s, f"@{user} Turning all the LED on!")
+                        controlArduino("ALL ON") 
+                elif "all off" in message:
+                    if "enter" in message:
+                        a=[]
+                    else:
+                        sendMessage(s, f"@{user} Turning all the LED off!") 
+                        controlArduino("ALL OFF") 
                 
                 
                 match_color = re.match(r"led(\d+) (r|g|b|red|green|blue)$", message)
@@ -89,7 +103,7 @@ def listenAndRespond(s):
                     mapped_color = color_map[color]
 
                     sendMessage(s, f"@{user} Setting LED {led_num} to {mapped_color}")
-                    controlArduino(f" {led_num} {mapped_color}")
+                    controlArduino(f"{led_num} {mapped_color}")
 
             
                 match_rgb = re.match(r"led(\d+) (\d{1,3}) (\d{1,3}) (\d{1,3})$", message)
