@@ -147,4 +147,6 @@ void rainbowCycle() {
     fill_rainbow(leds, NUM_LEDS, hue, 10);
     hue += 5;
     FastLED.delay(5);
+    FastLED.clear();
+
 }
