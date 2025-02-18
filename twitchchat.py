@@ -1,8 +1,14 @@
 import socket
+import time
 from dotenv import load_dotenv
 import os
 import serial
 import re
+import random
+import requests
+import threading
+
+
 
 load_dotenv()
 
@@ -10,10 +16,35 @@ HOST = 'irc.chat.twitch.tv'
 PORT = 6667
 TOKEN = os.getenv("TWITCH_OAUTH_TOKEN")
 CHANNEL = "aglamorousfortuneteller"
-
+BOT_NICK="greenwitchbi"
 ARDUINO_PORT = "COM9"
 BAUD_RATE = 115200 
 arduino = serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout=1) 
+
+active_users={}
+total_leds=50
+
+def get_chatters():
+    url=f"https://tmi.twitch.tv/group/user/{CHANNEL}/chatters"
+    headers={
+        "CLient-ID": TWITCH_CLIENT_ID,
+        "Authorization": f"Bearer {TOKEN}"
+    }
+
+    try:
+        responce = requests.get(url,headers=headers)
+        if responce.status_code == 200:
+            data=responce.json()
+            chatters=data.get("chatters", {}).get("viewers", [])
+            return chatters
+        else:
+            print(f"Error fetching chatters: {responce.status_code}")
+            return []
+    except Exception as e:
+        print(f"Exception while fetching chatters: {e}")
+        return []
+    
+
 
 def openSocket():
     s = socket.socket()
@@ -39,7 +70,40 @@ def getMessage(line):
 
 def controlArduino(command): 
     if arduino.is_open: 
-        arduino.write(f"{command}\n".encode('utf-8')) 
+        arduino.flush()
+        command += "\n"
+        arduino.write(command.encode('utf-8'))
+        print(f"Arduino Command Sent: {command}")
+        time.sleep(0.5)
+
+
+
+def assignLedToUser(user):
+    if user == BOT_NICK:
+        return
+
+    if user not in active_users:
+        available_leds = list(set(range(1, total_leds + 1)) - set(active_users.values()))
+        if available_leds:
+            assigned_led=random.choice(available_leds)
+            active_users[user]=assigned_led
+            sendMessage(s,f"@{user} You got LED{assigned_led}! 💡")
+            text_to_arduino=(f"{assigned_led} 255 255 255")
+            controlArduino(text_to_arduino) 
+        else:
+            sendMessage(s,f"@{user} No more free LEDs available!")
+
+def update_chatters():
+    while True:
+        chatters=get_chatters()
+        if chatters:
+            print(f"Active chatters: {chatters}")
+
+            for user in chatters:
+                assignLedToUser(user)
+
+        time.sleep(120)
+
 
 def listenAndRespond(s):
     buffer = ""
@@ -59,6 +123,9 @@ def listenAndRespond(s):
             message = getMessage(line)
             if user and message:
                 message = message.strip().casefold()
+
+                assignLedToUser(user)
+
                 if "ping" in message:
                     sendMessage(s, f"@{user}, PONG")
                 elif "💖" in message:
@@ -124,4 +191,6 @@ def listenAndRespond(s):
 if __name__ == "__main__":
     s = openSocket()
     sendMessage(s, "Hello, world!")
+    controlArduino("ALL OFF")
+    threading.Thread(target=update_chatters, daemon=True).start()
     listenAndRespond(s)
