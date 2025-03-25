@@ -77,69 +77,74 @@ void processLEDCommand(String command) {
 
     String ledNumberStr = command.substring(0, firstSpace);
     ledNumberStr.trim();
-    int ledNumber = ledNumberStr.toInt();
-
-    if (ledNumber < 0 || ledNumber >= NUM_LEDS) {
-        Serial.println("Invalid LED number!");
-        return;
+    int dashIndex = ledNumberStr.indexOf('-');
+    int startLed=-1, endLed=-1;
+    if (dashIndex!=-1) {
+      startLed=ledNumberStr.substring(0,dashIndex).toInt();
+      endLed=ledNumberStr.substring(dashIndex+1).toInt();
+    } else {
+      startLed = endLed = ledNumberStr.toInt();
     }
+
 
     String action = command.substring(firstSpace + 1);
     action.trim();
 
-    if (action.equals("ON")) {
-        leds[ledNumber] = CRGB::White;
-        Serial.print("LED ");
-        Serial.print(ledNumber);
-        Serial.println(" turned ON (White).");
-    } else if (action.equals("OFF")) {
-        leds[ledNumber] = CRGB::Black;
-        Serial.print("LED ");
-        Serial.print(ledNumber);
-        Serial.println(" turned OFF.");
-    } else if (action.equals("R")) {
-        leds[ledNumber] = CRGB::Red;
-        Serial.print("LED ");
-        Serial.print(ledNumber);
-        Serial.println(" set to Red.");
-    } else if (action.equals("G")) {
-        leds[ledNumber] = CRGB::Green;
-        Serial.print("LED ");
-        Serial.print(ledNumber);
-        Serial.println(" set to Green.");
-    } else if (action.equals("B")) {
-        leds[ledNumber] = CRGB::Blue;
-        Serial.print("LED ");
-        Serial.print(ledNumber);
-        Serial.println(" set to Blue.");
-    } 
-    else {
-      int space1= action.indexOf(' ');
-      int space2= action.indexOf(' ', space1+1);
-      if (space1 ==-1 || space2 ==-1){
-        Serial.println("Unknown command.");
-        return;
-    }
-    int r=action.substring(0,space1).toInt();
-    int g=action.substring(space1+1, space2).toInt();
-    int b=action.substring(space2+1).toInt();
+    for (int i = startLed; i<=endLed; i++) {
+      if (action == "ON" || action == "W"|| action == "WHITE") {
+          leds[i] = CRGB::White;
+          Serial.print("LED ");
+          Serial.print(i);
+          Serial.println(" turned ON (White).");
+      } else if (action.equals("OFF")) {
+          leds[i] = CRGB::Black;
+          Serial.print("LED ");
+          Serial.print(i);
+          Serial.println(" turned OFF.");
+      } else if (action.equals("R")) {
+          leds[i] = CRGB::Red;
+          Serial.print("LED ");
+          Serial.print(i);
+          Serial.println(" set to Red.");
+      } else if (action.equals("G")) {
+          leds[i] = CRGB::Green;
+          Serial.print("LED ");
+          Serial.print(i);
+          Serial.println(" set to Green.");
+      } else if (action.equals("B")) {
+          leds[i] = CRGB::Blue;
+          Serial.print("LED ");
+          Serial.print(i);
+          Serial.println(" set to Blue.");
+      } 
+      else {
+        int space1= action.indexOf(' ');
+        int space2= action.indexOf(' ', space1+1);
+        if (space1 ==-1 || space2 ==-1){
+          Serial.println("Unknown command.");
+          return;
+      }
+      int r=action.substring(0,space1).toInt();
+      int g=action.substring(space1+1, space2).toInt();
+      int b=action.substring(space2+1).toInt();
 
-    if (r<0 || r>255 || g<0 || g>255 || b<0 ||b>255){
-      Serial.println("Invalid RGB input");
-      return;
+      if (r<0 || r>255 || g<0 || g>255 || b<0 ||b>255){
+        Serial.println("Invalid RGB input");
+        return;
+      }
+      leds[i]=CRGB(r,g,b);
+      Serial.print("LED");
+      Serial.print(i);
+      Serial.print(" set to RGB");
+      Serial.print(r);
+      Serial.print(", ");
+      Serial.print(g);
+      Serial.print(", ");
+      Serial.print(b);
+      Serial.print(".");
+      }
     }
-    leds[ledNumber]=CRGB(r,g,b);
-    Serial.print("LED");
-    Serial.print("ledNumber");
-    Serial.print("set to RGB");
-    Serial.print(r);
-    Serial.print(", ");
-    Serial.print(g);
-    Serial.print(", ");
-    Serial.print(b);
-    Serial.print(".");
-    }
-FastLED.show();
+    FastLED.show();
 }
 
 void rainbowCycle() {
