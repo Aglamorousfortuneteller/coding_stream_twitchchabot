@@ -18,10 +18,4 @@ This bot was live coded on stream at [Twitch](https://www.twitch.tv/aglamorousfo
 
 This bot was live coded on stream at [Twitch](https://www.twitch.tv/aglamorousfortuneteller) on March 25, 2025.
 
-<<<<<<< HEAD
 📺 Watch the session 4 here: [Twitch VOD](https://www.twitch.tv/videos/2415246090)
-=======
->>>>>>> d210c4a (Update README.md)
-=======
-📺 Watch the session 4 here: [Twitch VOD]()
->>>>>>> 68530e1 (Added the flats mapping and range command that was erased)
