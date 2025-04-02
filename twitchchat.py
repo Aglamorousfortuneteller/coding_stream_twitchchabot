@@ -11,7 +11,7 @@ load_dotenv()
 
 HOST = 'irc.chat.twitch.tv'
 PORT = 443
-TOKEN = "YOUR_TOKEN_HERE"
+TOKEN = os.getenv("TWITCH_OAUTH_TOKEN")
 CHANNEL = "aglamorousfortuneteller"
 BOT_NICK = "greenwitchbi"
 ARDUINO_PORT = "COM8"
